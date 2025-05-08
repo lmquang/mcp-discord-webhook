@@ -47,6 +47,8 @@ export const SendMessageParamsSchema = z.object({
 export const SendEmbedParamsSchema = z.object({
     webhookUrl: z.string().url({ message: "Invalid Discord webhook URL" }),
     embeds: z.array(DiscordEmbedSchema).min(1).max(10),
+    title: z.string().optional(),
+    description: z.string().optional(),
     content: z.string().max(2000).optional(),
     username: z.string().optional(),
     avatarUrl: z.string().url().optional(),

@@ -337,6 +337,8 @@ export declare const SendEmbedParamsSchema: z.ZodObject<{
             inline?: boolean | undefined;
         }[] | undefined;
     }>, "many">;
+    title: z.ZodOptional<z.ZodString>;
+    description: z.ZodOptional<z.ZodString>;
     content: z.ZodOptional<z.ZodString>;
     username: z.ZodOptional<z.ZodString>;
     avatarUrl: z.ZodOptional<z.ZodString>;
@@ -376,6 +378,8 @@ export declare const SendEmbedParamsSchema: z.ZodObject<{
         }[] | undefined;
     }[];
     autoFormat: boolean;
+    title?: string | undefined;
+    description?: string | undefined;
     content?: string | undefined;
     username?: string | undefined;
     avatarUrl?: string | undefined;
@@ -413,6 +417,8 @@ export declare const SendEmbedParamsSchema: z.ZodObject<{
             inline?: boolean | undefined;
         }[] | undefined;
     }[];
+    title?: string | undefined;
+    description?: string | undefined;
     content?: string | undefined;
     username?: string | undefined;
     avatarUrl?: string | undefined;

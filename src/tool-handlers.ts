@@ -1,6 +1,6 @@
 // src/tool-handlers.ts
 import axios from 'axios';
-import OpenAI from 'openai';
+import OpenAI, { fileFromPath } from 'openai';
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from 'zod';
 import type { SendMessageArgs, SendEmbedArgs } from './schema.js'; // Import types
@@ -22,47 +22,47 @@ export async function handleDiscordSendMessage(params: SendMessageArgs, extra?: 
   }
 }
 
-// Define Zod schema for Discord embed with nullable() for optional fields
+// Define Zod schema for Discord embed with optional() for optional fields
 const DiscordEmbedFieldSchema = z.object({
   name: z.string(),
   value: z.string(),
-  inline: z.boolean().nullable().optional(),
+  inline: z.boolean().optional(),
 });
 
 const DiscordEmbedFooterSchema = z.object({
   text: z.string(),
-  icon_url: z.string().url().nullable().optional(),
-}).nullable().optional();
+  icon_url: z.string().optional(),
+}).optional();
 
 const DiscordEmbedImageSchema = z.object({
-  url: z.string().url(),
-  height: z.number().int().positive().nullable().optional(),
-  width: z.number().int().positive().nullable().optional(),
-}).nullable().optional();
+  url: z.string(),
+  height: z.number().optional(),
+  width: z.number().optional(),
+}).optional();
 
 const DiscordEmbedThumbnailSchema = z.object({
-  url: z.string().url(),
-  height: z.number().int().positive().nullable().optional(),
-  width: z.number().int().positive().nullable().optional(),
-}).nullable().optional();
+  url: z.string(),
+  height: z.number().optional(),
+  width: z.number().optional(),
+}).optional();
 
 const DiscordEmbedAuthorSchema = z.object({
   name: z.string(),
-  url: z.string().url().nullable().optional(),
-  icon_url: z.string().url().nullable().optional(),
-}).nullable().optional();
+  url: z.string().optional(),
+  icon_url: z.string().optional(),
+}).optional();
 
 const DiscordEmbedSchema = z.object({
   title: z.string(),
-  description: z.string().nullable().optional(),
-  url: z.string().url().nullable().optional(),
-  timestamp: z.string().datetime().nullable().optional(),
-  color: z.number().int().min(0).max(0xFFFFFF).nullable().optional(),
+  description: z.string().optional(),
+  url: z.string().optional(),
+  timestamp: z.string().optional(),
+  color: z.number().optional(),
   footer: DiscordEmbedFooterSchema,
   image: DiscordEmbedImageSchema,
   thumbnail: DiscordEmbedThumbnailSchema,
   author: DiscordEmbedAuthorSchema,
-  fields: z.array(DiscordEmbedFieldSchema).nullable().optional(),
+  fields: z.array(DiscordEmbedFieldSchema).optional(),
 });
 
 // Helper function to format content using OpenAI
@@ -78,27 +78,29 @@ async function formatContentWithOpenAI(content: string, customPrompt?: string): 
   // Default system prompt for formatting Discord embeds
   const defaultSystemPrompt = `
     You are a Discord embed formatter. Convert the given content into a well-structured Discord embed.
-    Create a title, description, and relevant fields based on the content. Make use content is always in emebed fields.
-    Use appropriate formatting and structure to make the embed visually appealing.
+    
+    You need to understand the content and create a title, description, and relevant fields based on the content following these instructions:
+    - Generate a title based on the content.
+    - Generate a description based on the content, make it short and concise within 15-20 words
+    - Make sure to use the content to create "fields" in the embed.
+    - Use appropriate formatting and structure to make the embed visually appealing.
     
     Return a JSON object for a Discord embed with the following structure:
     {
       "title": "Title of the embed",
-      "description": "Description of the embed",
-      "color": 3447003, // A blue color in decimal
+      "description": "Description of content. Make it short and concise within 15-20 words",
+      "color": 3447003, // A blue color in decimal, you need to understand the content and make it appropriate
       "fields": [
         {
-          "name": "Field name",
-          "value": "Field value",
+          "name": "Header of section of field1",
+          "value": "Content of section of field2",
           "inline": true/false
         }
-      ],
+      ], // You need to use the content to create fields, make sure to use the content to create fields
       "footer": {
         "text": "Optional footer text"
       }
     }
-    
-    Ensure your response is valid JSON format.
   `;
 
   try {
@@ -137,7 +139,7 @@ export async function handleDiscordSendEmbed(params: SendEmbedArgs, extra?: any)
   const { webhookUrl, embeds, content, username, avatarUrl, autoFormat, autoFormatPrompt } = params;
   try {
     let finalEmbeds = embeds;
-    
+
     // If autoFormat is enabled and we have content, use OpenAI to format it
     if (autoFormat && content) {
       try {
@@ -160,6 +162,13 @@ export async function handleDiscordSendEmbed(params: SendEmbedArgs, extra?: any)
     const payload: any = { embeds: finalEmbeds };
     if (username) payload.username = username;
     if (avatarUrl) payload.avatar_url = avatarUrl;
+    if (content && !autoFormat) payload.content = content;
+    
+    if (payload.title === "Content Summary") {
+      payload.title = finalEmbeds[0].title;
+      payload.description = finalEmbeds[0].description;
+    }
+    console.log("payload", payload);
 
     await axios.post(webhookUrl, payload, { headers: { "Content-Type": "application/json" } });
     return { content: [{ type: "text", text: "Embed message sent successfully." }] };
