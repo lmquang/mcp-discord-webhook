@@ -83,7 +83,7 @@ async function formatContentWithOpenAI(content: string, customPrompt?: string): 
     - Generate a title based on the content.
     - Generate a description based on the content, make it short and concise within 15-20 words
     - Make sure to use the content to create "fields" in the embed.
-    - Use appropriate formatting and structure to make the embed visually appealing.
+    - Use appropriate formatting, emoji for the fields name, and structure to make the embed visually appealing.
     
     Return a JSON object for a Discord embed with the following structure:
     {
@@ -164,10 +164,6 @@ export async function handleDiscordSendEmbed(params: SendEmbedArgs, extra?: any)
     if (avatarUrl) payload.avatar_url = avatarUrl;
     if (content && !autoFormat) payload.content = content;
     
-    if (payload.title === "Content Summary") {
-      payload.title = finalEmbeds[0].title;
-      payload.description = finalEmbeds[0].description;
-    }
     console.log("payload", payload);
 
     await axios.post(webhookUrl, payload, { headers: { "Content-Type": "application/json" } });
