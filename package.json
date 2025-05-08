@@ -1,6 +1,6 @@
 {
   "name": "@lmquang/mcp-discord-webhook",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "MCP server to send messages and embeds to Discord webhooks via stdio.",
   "main": "dist/server.js",
   "types": "dist/server.d.ts",
@@ -15,7 +15,10 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/cli.js",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "publish:patch": "./scripts/publish.sh patch",
+    "publish:minor": "./scripts/publish.sh minor",
+    "publish:major": "./scripts/publish.sh major"
   },
   "repository": {
     "type": "git",

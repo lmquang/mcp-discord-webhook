@@ -150,19 +150,63 @@ This package uses GitHub Actions to automatically publish to npm when a new vers
 
 ### To publish a new version:
 
+#### Option 1: Using npm scripts (recommended)
+
+We provide npm scripts that handle versioning and publishing:
+
+```bash
+# For bug fixes (1.0.0 -> 1.0.1)
+npm run publish:patch
+
+# For new features (1.0.0 -> 1.1.0)
+npm run publish:minor
+
+# For breaking changes (1.0.0 -> 2.0.0)
+npm run publish:major
+```
+
+#### Option 2: Using the helper script directly
+
+You can also run the helper script directly:
+
+```bash
+./scripts/publish.sh patch  # or minor/major
+```
+
+The script will:
+1. Check for uncommitted changes
+2. Update the version in package.json
+3. Create a git tag
+4. Push changes and tags
+5. Trigger the GitHub Action workflow
+
+#### Option 3: Manual process
+
 1. Update the version in `package.json`:
    ```bash
-   npm version patch  # for bug fixes
-   npm version minor  # for new features
-   npm version major  # for breaking changes
+   npm version patch  # for bug fixes (1.0.0 -> 1.0.1)
+   npm version minor  # for new features (1.0.0 -> 1.1.0)
+   npm version major  # for breaking changes (1.0.0 -> 2.0.0)
    ```
+   
+   **Note:** The `npm version` command will automatically create a git tag for you.
 
 2. Push the changes and the new tag:
    ```bash
    git push && git push --tags
    ```
 
-3. The GitHub Action will automatically build and publish the package to npm.
+3. The GitHub Action will automatically:
+   - Check if the version already exists on npm
+   - Build the project
+   - Publish to npm if the version is new
+
+### Version naming convention
+
+Follow semantic versioning (SemVer) principles:
+- **MAJOR** version for incompatible API changes
+- **MINOR** version for adding functionality in a backward compatible manner
+- **PATCH** version for backward compatible bug fixes
 
 ### Setting up npm authentication
 
