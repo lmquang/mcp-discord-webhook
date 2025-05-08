@@ -6,6 +6,7 @@ A Model Context Protocol (MCP) server that provides tools to send messages and e
 
 - Send simple text messages to Discord webhooks
 - Send rich embeds to Discord webhooks with customizable content
+- Auto-format content into Discord embeds using OpenAI
 - Supports both stdio and HTTP transport modes
 
 ## Installation
@@ -31,6 +32,14 @@ mcp-discord-webhook
 ```bash
 # Run directly with npx
 npx -y @lmquang/mcp-discord-webhook
+```
+
+### Environment Variables
+
+When using the autoFormat feature, you need to set your OpenAI API key:
+
+```bash
+export OPENAI_API_KEY=your_openai_api_key
 ```
 
 ### As a Library
@@ -83,6 +92,40 @@ Parameters:
 - `content` (string, optional): Optional text content
 - `username` (string, optional): Override the webhook's default username
 - `avatarUrl` (string, optional): Override the webhook's default avatar
+- `autoFormat` (boolean, optional): When set to true, uses OpenAI to automatically format the content into a Discord embed
+- `autoFormatPrompt` (string, optional): Custom system prompt for the OpenAI formatting (only used when autoFormat is true)
+
+## Auto-Formatting with OpenAI
+
+When the `autoFormat` parameter is set to `true`, the tool will use OpenAI's API to convert your content into a well-structured Discord embed. This is particularly useful when you want to quickly format plain text or unstructured content into an attractive Discord embed.
+
+The auto-formatting feature includes Zod schema validation to ensure that the generated embeds conform to Discord's requirements. If the AI generates an invalid embed format, the tool will automatically fall back to a simple embed containing the original content.
+
+**Note:** When `autoFormat` is enabled, the content is only used to generate the embed and is not included separately in the Discord message. This prevents duplicate content from appearing in your Discord messages.
+
+Example:
+```javascript
+{
+  "webhookUrl": "https://discord.com/api/webhooks/your_webhook_url",
+  "content": "Project Status Update: We've completed the backend API and are now working on the frontend. Current progress is at 65%. Next milestone is scheduled for Friday.",
+  "embeds": [], // Can be empty when using autoFormat
+  "autoFormat": true
+}
+```
+
+You can also customize the formatting by providing a custom system prompt:
+
+```javascript
+{
+  "webhookUrl": "https://discord.com/api/webhooks/your_webhook_url",
+  "content": "Project Status Update: We've completed the backend API and are now working on the frontend. Current progress is at 65%. Next milestone is scheduled for Friday.",
+  "embeds": [],
+  "autoFormat": true,
+  "autoFormatPrompt": "Format this as a project status report with color-coded sections based on urgency. Use red for critical items, yellow for warnings, and green for completed items."
+}
+```
+
+**Note:** Using the `autoFormat` feature requires an OpenAI API key set as the `OPENAI_API_KEY` environment variable.
 
 ## Development
 
@@ -100,6 +143,34 @@ npm run build
 # Run in development mode
 npm start
 ```
+
+## Publishing
+
+This package uses GitHub Actions to automatically publish to npm when a new version tag is pushed.
+
+### To publish a new version:
+
+1. Update the version in `package.json`:
+   ```bash
+   npm version patch  # for bug fixes
+   npm version minor  # for new features
+   npm version major  # for breaking changes
+   ```
+
+2. Push the changes and the new tag:
+   ```bash
+   git push && git push --tags
+   ```
+
+3. The GitHub Action will automatically build and publish the package to npm.
+
+### Setting up npm authentication
+
+To enable the GitHub Action to publish to npm, you need to add your npm token as a repository secret:
+
+1. Generate an npm access token from your npm account settings
+2. Go to your GitHub repository settings > Secrets > Actions
+3. Add a new repository secret named `NPM_TOKEN` with your npm access token as the value
 
 ## License
 

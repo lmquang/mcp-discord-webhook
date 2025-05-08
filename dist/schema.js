@@ -50,5 +50,7 @@ export const SendEmbedParamsSchema = z.object({
     content: z.string().max(2000).optional(),
     username: z.string().optional(),
     avatarUrl: z.string().url().optional(),
+    autoFormat: z.boolean().optional().default(false),
+    autoFormatPrompt: z.string().optional(),
 });
 //# sourceMappingURL=schema.js.map

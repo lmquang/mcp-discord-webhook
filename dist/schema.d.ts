@@ -340,6 +340,8 @@ export declare const SendEmbedParamsSchema: z.ZodObject<{
     content: z.ZodOptional<z.ZodString>;
     username: z.ZodOptional<z.ZodString>;
     avatarUrl: z.ZodOptional<z.ZodString>;
+    autoFormat: z.ZodDefault<z.ZodOptional<z.ZodBoolean>>;
+    autoFormatPrompt: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
     webhookUrl: string;
     embeds: {
@@ -373,9 +375,11 @@ export declare const SendEmbedParamsSchema: z.ZodObject<{
             inline?: boolean | undefined;
         }[] | undefined;
     }[];
+    autoFormat: boolean;
     content?: string | undefined;
     username?: string | undefined;
     avatarUrl?: string | undefined;
+    autoFormatPrompt?: string | undefined;
 }, {
     webhookUrl: string;
     embeds: {
@@ -412,6 +416,8 @@ export declare const SendEmbedParamsSchema: z.ZodObject<{
     content?: string | undefined;
     username?: string | undefined;
     avatarUrl?: string | undefined;
+    autoFormat?: boolean | undefined;
+    autoFormatPrompt?: string | undefined;
 }>;
 export type SendMessageArgs = z.infer<typeof SendMessageParamsSchema>;
 export type SendEmbedArgs = z.infer<typeof SendEmbedParamsSchema>;

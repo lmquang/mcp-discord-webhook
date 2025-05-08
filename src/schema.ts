@@ -58,7 +58,10 @@ export const SendEmbedParamsSchema = z.object({
   content: z.string().max(2000).optional(),
   username: z.string().optional(),
   avatarUrl: z.string().url().optional(),
+  autoFormat: z.boolean().optional().default(false),
+  autoFormatPrompt: z.string().optional(),
 });
+
 
 // --- Type Aliases (inferred from Zod schemas for better type safety in handlers) ---
 export type SendMessageArgs = z.infer<typeof SendMessageParamsSchema>;

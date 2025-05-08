@@ -25,7 +25,9 @@ export function registerDiscordWebhookTools(server) {
         embeds: z.array(z.object({}).passthrough()),
         content: z.string().max(2000).optional(),
         username: z.string().optional(),
-        avatarUrl: z.string().url().optional()
+        avatarUrl: z.string().url().optional(),
+        autoFormat: z.boolean().optional().default(false),
+        autoFormatPrompt: z.string().optional()
     }, async (args, extra) => {
         const result = await handleDiscordSendEmbed(args, extra);
         return {
