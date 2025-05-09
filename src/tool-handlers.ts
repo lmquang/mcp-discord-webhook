@@ -3,7 +3,11 @@ import axios from 'axios';
 import OpenAI, { fileFromPath } from 'openai';
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from 'zod';
-import type { SendMessageArgs, SendEmbedArgs } from './schema.js'; // Import types
+import { 
+  SendMessageArgs, 
+  SendEmbedArgs,
+  OpenAICompatibleEmbedSchema 
+} from './schema.js';
 
 export async function handleDiscordSendMessage(params: SendMessageArgs, extra?: any) {
   const { webhookUrl, content, username, avatarUrl } = params;
@@ -21,49 +25,6 @@ export async function handleDiscordSendMessage(params: SendMessageArgs, extra?: 
     return { content: [{ type: "text", text: `Error: ${errorMessage}` }], isError: true };
   }
 }
-
-// Define Zod schema for Discord embed with optional() for optional fields
-const DiscordEmbedFieldSchema = z.object({
-  name: z.string(),
-  value: z.string(),
-  inline: z.boolean().optional(),
-});
-
-const DiscordEmbedFooterSchema = z.object({
-  text: z.string(),
-  icon_url: z.string().optional(),
-}).optional();
-
-const DiscordEmbedImageSchema = z.object({
-  url: z.string(),
-  height: z.number().optional(),
-  width: z.number().optional(),
-}).optional();
-
-const DiscordEmbedThumbnailSchema = z.object({
-  url: z.string(),
-  height: z.number().optional(),
-  width: z.number().optional(),
-}).optional();
-
-const DiscordEmbedAuthorSchema = z.object({
-  name: z.string(),
-  url: z.string().optional(),
-  icon_url: z.string().optional(),
-}).optional();
-
-const DiscordEmbedSchema = z.object({
-  title: z.string(),
-  description: z.string().optional(),
-  url: z.string().optional(),
-  timestamp: z.string().optional(),
-  color: z.number().optional(),
-  footer: DiscordEmbedFooterSchema,
-  image: DiscordEmbedImageSchema,
-  thumbnail: DiscordEmbedThumbnailSchema,
-  author: DiscordEmbedAuthorSchema,
-  fields: z.array(DiscordEmbedFieldSchema).optional(),
-});
 
 // Helper function to format content using OpenAI
 async function formatContentWithOpenAI(content: string, customPrompt?: string): Promise<any> {
@@ -111,7 +72,7 @@ async function formatContentWithOpenAI(content: string, customPrompt?: string): 
         { role: "system", content: customPrompt || defaultSystemPrompt },
         { role: "user", content }
       ],
-      response_format: zodResponseFormat(DiscordEmbedSchema, "discordEmbed"),
+      response_format: zodResponseFormat(OpenAICompatibleEmbedSchema, "discordEmbed"),
       temperature: 0.0,
     });
 

@@ -44,6 +44,52 @@ export const DiscordEmbedSchema = z.object({
   fields: z.array(DiscordEmbedFieldSchema).optional(),
 });
 
+// --- OpenAI-Compatible Discord Embed Schemas ---
+// These are simplified versions for use with OpenAI's zodResponseFormat
+// Avoids validators that aren't compatible with OpenAI's response_format
+
+export const OpenAICompatibleEmbedFieldSchema = z.object({
+  name: z.string(),
+  value: z.string(),
+  inline: z.boolean().optional(),
+});
+
+export const OpenAICompatibleEmbedFooterSchema = z.object({
+  text: z.string(),
+  icon_url: z.string().optional(),
+}).optional();
+
+export const OpenAICompatibleEmbedImageSchema = z.object({
+  url: z.string(),
+  height: z.number().optional(),
+  width: z.number().optional(),
+}).optional();
+
+export const OpenAICompatibleEmbedThumbnailSchema = z.object({
+  url: z.string(),
+  height: z.number().optional(),
+  width: z.number().optional(),
+}).optional();
+
+export const OpenAICompatibleEmbedAuthorSchema = z.object({
+  name: z.string(),
+  url: z.string().optional(),
+  icon_url: z.string().optional(),
+}).optional();
+
+export const OpenAICompatibleEmbedSchema = z.object({
+  title: z.string(),
+  description: z.string().optional(),
+  url: z.string().optional(),
+  timestamp: z.string().optional(),
+  color: z.number().optional(),
+  footer: OpenAICompatibleEmbedFooterSchema,
+  image: OpenAICompatibleEmbedImageSchema,
+  thumbnail: OpenAICompatibleEmbedThumbnailSchema,
+  author: OpenAICompatibleEmbedAuthorSchema,
+  fields: z.array(OpenAICompatibleEmbedFieldSchema).optional(),
+});
+
 // --- Tool Parameter Schemas ---
 export const SendMessageParamsSchema = z.object({
   webhookUrl: z.string().url({ message: "Invalid Discord webhook URL" }),
