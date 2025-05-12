@@ -31,7 +31,7 @@
     "llm",
     "model-context-protocol"
   ],
-  "author": "Quang Le <lmquang@gmail.com>",
+  "author": "Quang Le <quanglm.ops@gmail.com>",
   "license": "MIT",
   "engines": {
     "node": ">=16.0.0"
