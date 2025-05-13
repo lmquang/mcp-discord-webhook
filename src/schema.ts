@@ -93,7 +93,7 @@ export const OpenAICompatibleEmbedSchema = z.object({
 // --- Tool Parameter Schemas ---
 export const SendMessageParamsSchema = z.object({
   webhookUrl: z.string().url({ message: "Invalid Discord webhook URL" }),
-  content: z.string().min(1).max(2000),
+  content: z.string().min(1),
   username: z.string().optional(),
   avatarUrl: z.string().url().optional(),
 });
@@ -103,7 +103,7 @@ export const SendEmbedParamsSchema = z.object({
   embeds: z.array(z.object({}).passthrough()),
   title: z.string().optional(),
   description: z.string().optional(),
-  content: z.string().max(2000).optional(),
+  content: z.string().optional(),
   username: z.string().optional(),
   avatarUrl: z.string().url().optional(),
   autoFormat: z.boolean().optional().default(false),
