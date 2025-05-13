@@ -3,10 +3,10 @@ import axios from 'axios';
 import OpenAI, { fileFromPath } from 'openai';
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from 'zod';
-import { 
-  SendMessageArgs, 
+import {
+  SendMessageArgs,
   SendEmbedArgs,
-  OpenAICompatibleEmbedSchema 
+  OpenAICompatibleEmbedSchema
 } from './schema.js';
 
 export async function handleDiscordSendMessage(params: SendMessageArgs, extra?: any) {
@@ -97,7 +97,7 @@ async function formatContentWithOpenAI(content: string, customPrompt?: string): 
 }
 
 export async function handleDiscordSendEmbed(params: SendEmbedArgs, extra?: any) {
-  const { webhookUrl, embeds, content, username, avatarUrl, autoFormat, autoFormatPrompt } = params;
+  const { webhookUrl, embeds, title, content, username, avatarUrl, autoFormat, autoFormatPrompt } = params;
   try {
     let finalEmbeds = embeds;
 
@@ -112,7 +112,7 @@ export async function handleDiscordSendEmbed(params: SendEmbedArgs, extra?: any)
         if (embeds.length === 0) {
           // If no embeds were provided, create a basic one from the content
           finalEmbeds = [{
-            title: "Content Summary",
+            title: title !== "" ? title : "Content Summary",
             description: content.substring(0, 2000),
             color: 3447003,
           }];
@@ -124,7 +124,7 @@ export async function handleDiscordSendEmbed(params: SendEmbedArgs, extra?: any)
     if (username) payload.username = username;
     if (avatarUrl) payload.avatar_url = avatarUrl;
     if (content && !autoFormat) payload.content = content;
-    
+    if (title) payload.title = title;
     console.log("payload", payload);
 
     await axios.post(webhookUrl, payload, { headers: { "Content-Type": "application/json" } });
