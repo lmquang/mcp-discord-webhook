@@ -49,6 +49,10 @@ $(MAIN_JS): $(TS_FILES) tsconfig.json $(NODE_MODULES_MARKER)
 
 build: $(MAIN_JS)
 
+cli: build
+	@echo "Starting MCP Discord Webhook CLI..."
+	$(NODE) dist/cli.js
+
 # Run the server
 # Depends on the main JS file being built.
 run: $(MAIN_JS)

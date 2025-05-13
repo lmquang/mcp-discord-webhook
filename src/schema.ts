@@ -51,43 +51,43 @@ export const DiscordEmbedSchema = z.object({
 export const OpenAICompatibleEmbedFieldSchema = z.object({
   name: z.string(),
   value: z.string(),
-  inline: z.boolean().optional(),
+  inline: z.boolean().nullable(),
 });
 
 export const OpenAICompatibleEmbedFooterSchema = z.object({
   text: z.string(),
-  icon_url: z.string().optional(),
-}).optional();
+  icon_url: z.string().nullable(),
+}).nullable();
 
 export const OpenAICompatibleEmbedImageSchema = z.object({
   url: z.string(),
-  height: z.number().optional(),
-  width: z.number().optional(),
-}).optional();
+  height: z.number().nullable(),
+  width: z.number().nullable(),
+}).nullable();
 
 export const OpenAICompatibleEmbedThumbnailSchema = z.object({
   url: z.string(),
-  height: z.number().optional(),
-  width: z.number().optional(),
-}).optional();
+  height: z.number().nullable(),
+  width: z.number().nullable(),
+}).nullable();
 
 export const OpenAICompatibleEmbedAuthorSchema = z.object({
   name: z.string(),
-  url: z.string().optional(),
-  icon_url: z.string().optional(),
-}).optional();
+  url: z.string().nullable(),
+  icon_url: z.string().nullable(),
+}).nullable();
 
 export const OpenAICompatibleEmbedSchema = z.object({
   title: z.string(),
-  description: z.string().optional(),
-  url: z.string().optional(),
-  timestamp: z.string().optional(),
-  color: z.number().optional(),
+  description: z.string().nullable(),
+  url: z.string().nullable(),
+  timestamp: z.string().nullable(),
+  color: z.number().nullable(),
   footer: OpenAICompatibleEmbedFooterSchema,
   image: OpenAICompatibleEmbedImageSchema,
   thumbnail: OpenAICompatibleEmbedThumbnailSchema,
   author: OpenAICompatibleEmbedAuthorSchema,
-  fields: z.array(OpenAICompatibleEmbedFieldSchema).optional(),
+  fields: z.array(OpenAICompatibleEmbedFieldSchema).nullable(),
 });
 
 // --- Tool Parameter Schemas ---
@@ -100,7 +100,7 @@ export const SendMessageParamsSchema = z.object({
 
 export const SendEmbedParamsSchema = z.object({
   webhookUrl: z.string().url({ message: "Invalid Discord webhook URL" }),
-  embeds: z.array(DiscordEmbedSchema).min(1).max(10),
+  embeds: z.array(z.object({}).passthrough()),
   title: z.string().optional(),
   description: z.string().optional(),
   content: z.string().max(2000).optional(),

@@ -1,15 +1,10 @@
 // src/server-setup.ts (or directly in server.ts if it's the primary module)
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { handleDiscordSendMessage, handleDiscordSendEmbed } from './tool-handlers.js'; // Note .js
-import { z } from "zod";
+import { SendEmbedParamsSchema, SendMessageParamsSchema } from "./schema.js";
 export function registerDiscordWebhookTools(server) {
     // Register the discord-send-message tool
-    server.tool("discord-send-message", {
-        webhookUrl: z.string().url(),
-        content: z.string().min(1).max(2000),
-        username: z.string().optional(),
-        avatarUrl: z.string().url().optional()
-    }, async (args, extra) => {
+    server.tool("discord-send-message", SendMessageParamsSchema.shape, async (args, extra) => {
         const result = await handleDiscordSendMessage(args, extra);
         return {
             content: result.content.map(item => ({
@@ -20,15 +15,7 @@ export function registerDiscordWebhookTools(server) {
         };
     });
     // Register the discord-send-embed tool
-    server.tool("discord-send-embed", {
-        webhookUrl: z.string().url(),
-        embeds: z.array(z.object({}).passthrough()),
-        content: z.string().max(2000).optional(),
-        username: z.string().optional(),
-        avatarUrl: z.string().url().optional(),
-        autoFormat: z.boolean().optional().default(false),
-        autoFormatPrompt: z.string().optional()
-    }, async (args, extra) => {
+    server.tool("discord-send-embed", SendEmbedParamsSchema.shape, async (args, extra) => {
         const result = await handleDiscordSendEmbed(args, extra);
         return {
             content: result.content.map(item => ({

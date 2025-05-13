@@ -83,6 +83,8 @@ async function formatContentWithOpenAI(content: string, customPrompt?: string): 
       throw new Error("Failed to generate formatted content");
     }
 
+    console.log("formattedEmbed", formattedEmbed);
+
     return formattedEmbed;
   } catch (fallbackError: any) {
     console.error("Error formatting content with OpenAI:", fallbackError.message);
@@ -97,7 +99,8 @@ async function formatContentWithOpenAI(content: string, customPrompt?: string): 
 }
 
 export async function handleDiscordSendEmbed(params: SendEmbedArgs, extra?: any) {
-  const { webhookUrl, embeds, title, content, username, avatarUrl, autoFormat, autoFormatPrompt } = params;
+  const { webhookUrl, embeds, title, description, content, username, avatarUrl, autoFormat, autoFormatPrompt } = params;
+  console.log("params", params);
   try {
     let finalEmbeds = embeds;
 
@@ -123,8 +126,10 @@ export async function handleDiscordSendEmbed(params: SendEmbedArgs, extra?: any)
     const payload: any = { embeds: finalEmbeds };
     if (username) payload.username = username;
     if (avatarUrl) payload.avatar_url = avatarUrl;
-    if (content && !autoFormat) payload.content = content;
-    if (title) payload.title = title;
+    if (content && !autoFormat) payload.embeds[0].content = content;
+    if (title) payload.embeds[0].title = title;
+    if (description) payload.embeds[0].description = description;
+    console.log("payload", payload);
 
     await axios.post(webhookUrl, payload, { headers: { "Content-Type": "application/json" } });
     return { content: [{ type: "text", text: "Embed message sent successfully." }] };
