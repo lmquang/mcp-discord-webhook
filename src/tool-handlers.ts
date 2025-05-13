@@ -125,7 +125,6 @@ export async function handleDiscordSendEmbed(params: SendEmbedArgs, extra?: any)
     if (avatarUrl) payload.avatar_url = avatarUrl;
     if (content && !autoFormat) payload.content = content;
     if (title) payload.title = title;
-    console.log("payload", payload);
 
     await axios.post(webhookUrl, payload, { headers: { "Content-Type": "application/json" } });
     return { content: [{ type: "text", text: "Embed message sent successfully." }] };

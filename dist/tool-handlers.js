@@ -2,7 +2,7 @@
 import axios from 'axios';
 import OpenAI from 'openai';
 import { zodResponseFormat } from "openai/helpers/zod";
-import { z } from 'zod';
+import { OpenAICompatibleEmbedSchema } from './schema.js';
 export async function handleDiscordSendMessage(params, extra) {
     const { webhookUrl, content, username, avatarUrl } = params;
     try {
@@ -22,43 +22,6 @@ export async function handleDiscordSendMessage(params, extra) {
         return { content: [{ type: "text", text: `Error: ${errorMessage}` }], isError: true };
     }
 }
-// Define Zod schema for Discord embed with optional() for optional fields
-const DiscordEmbedFieldSchema = z.object({
-    name: z.string(),
-    value: z.string(),
-    inline: z.boolean().optional(),
-});
-const DiscordEmbedFooterSchema = z.object({
-    text: z.string(),
-    icon_url: z.string().optional(),
-}).optional();
-const DiscordEmbedImageSchema = z.object({
-    url: z.string(),
-    height: z.number().optional(),
-    width: z.number().optional(),
-}).optional();
-const DiscordEmbedThumbnailSchema = z.object({
-    url: z.string(),
-    height: z.number().optional(),
-    width: z.number().optional(),
-}).optional();
-const DiscordEmbedAuthorSchema = z.object({
-    name: z.string(),
-    url: z.string().optional(),
-    icon_url: z.string().optional(),
-}).optional();
-const DiscordEmbedSchema = z.object({
-    title: z.string(),
-    description: z.string().optional(),
-    url: z.string().optional(),
-    timestamp: z.string().optional(),
-    color: z.number().optional(),
-    footer: DiscordEmbedFooterSchema,
-    image: DiscordEmbedImageSchema,
-    thumbnail: DiscordEmbedThumbnailSchema,
-    author: DiscordEmbedAuthorSchema,
-    fields: z.array(DiscordEmbedFieldSchema).optional(),
-});
 // Helper function to format content using OpenAI
 async function formatContentWithOpenAI(content, customPrompt) {
     // Check for OpenAI API key
@@ -75,7 +38,7 @@ async function formatContentWithOpenAI(content, customPrompt) {
     - Generate a title based on the content.
     - Generate a description based on the content, make it short and concise within 15-20 words
     - Make sure to use the content to create "fields" in the embed.
-    - Use appropriate formatting and structure to make the embed visually appealing.
+    - Use appropriate formatting, emoji for the fields name, and structure to make the embed visually appealing.
     
     Return a JSON object for a Discord embed with the following structure:
     {
@@ -102,7 +65,7 @@ async function formatContentWithOpenAI(content, customPrompt) {
                 { role: "system", content: customPrompt || defaultSystemPrompt },
                 { role: "user", content }
             ],
-            response_format: zodResponseFormat(DiscordEmbedSchema, "discordEmbed"),
+            response_format: zodResponseFormat(OpenAICompatibleEmbedSchema, "discordEmbed"),
             temperature: 0.0,
         });
         // Get the parsed result directly
@@ -123,7 +86,7 @@ async function formatContentWithOpenAI(content, customPrompt) {
     }
 }
 export async function handleDiscordSendEmbed(params, extra) {
-    const { webhookUrl, embeds, content, username, avatarUrl, autoFormat, autoFormatPrompt } = params;
+    const { webhookUrl, embeds, title, content, username, avatarUrl, autoFormat, autoFormatPrompt } = params;
     try {
         let finalEmbeds = embeds;
         // If autoFormat is enabled and we have content, use OpenAI to format it
@@ -138,7 +101,7 @@ export async function handleDiscordSendEmbed(params, extra) {
                 if (embeds.length === 0) {
                     // If no embeds were provided, create a basic one from the content
                     finalEmbeds = [{
-                            title: "Content Summary",
+                            title: title !== "" ? title : "Content Summary",
                             description: content.substring(0, 2000),
                             color: 3447003,
                         }];
@@ -152,11 +115,8 @@ export async function handleDiscordSendEmbed(params, extra) {
             payload.avatar_url = avatarUrl;
         if (content && !autoFormat)
             payload.content = content;
-        if (payload.title === "Content Summary") {
-            payload.title = finalEmbeds[0].title;
-            payload.description = finalEmbeds[0].description;
-        }
-        console.log("payload", payload);
+        if (title)
+            payload.title = title;
         await axios.post(webhookUrl, payload, { headers: { "Content-Type": "application/json" } });
         return { content: [{ type: "text", text: "Embed message sent successfully." }] };
     }

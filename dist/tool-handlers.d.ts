@@ -1,4 +1,4 @@
-import type { SendMessageArgs, SendEmbedArgs } from './schema.js';
+import { SendMessageArgs, SendEmbedArgs } from './schema.js';
 export declare function handleDiscordSendMessage(params: SendMessageArgs, extra?: any): Promise<{
     content: {
         type: string;
